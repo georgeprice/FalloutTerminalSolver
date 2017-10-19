@@ -7,7 +7,7 @@ Given a set of words of the same length, you have 4 guesses to try and find the 
 ## Help solving it
 This python script helps keep track of what words the password could be (based on the remaining available words), and the best words to choose.
 
-## Using the script
+## Using the script
 ``` python
 python solver.py word_a word_b word_c ...
 ```
