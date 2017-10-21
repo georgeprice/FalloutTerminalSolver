@@ -20,7 +20,7 @@ python solver.py word_a word_b word_c ...
 
 If you've got a .txt file of the words...
 ``` python
-python solver.py p_words.txt
+python solver.py p_words.txt line_number_with_words
 ```
 
 ## Examples
