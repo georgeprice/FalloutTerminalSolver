@@ -2,7 +2,6 @@
 
 import itertools
 import operator
-import string
 import sys
 
 from colorama import Style, Fore
@@ -31,7 +30,7 @@ def rank_words():
 
     # iterate through each character index in a password, then group the passwords which
     for char_i in range(word_length):  # iterate through each character position in the words
-        for letter in string.ascii_lowercase:  # iterate through each possible letter
+        for letter in [chr(x) for x in range(97, 123)]:  # iterate through each possible letter
 
             grouping = []  # initialise a grouping of words with matching letters
 
