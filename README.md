@@ -8,8 +8,19 @@ Given a set of words of the same length, you have 4 guesses to try and find the 
 This python script helps keep track of what words the password could be (based on the remaining available words), and the best words to choose.
 
 ## Using the script
+If you want to be prompted for the words and type them in individually...
+``` python
+python solver.py
+```
+
+If you've got the words present on the terminal handy...
 ``` python
 python solver.py word_a word_b word_c ...
+```
+
+If you've got a .txt file of the words...
+``` python
+python solver.py p_words.txt line_number_with_words
 ```
 
 ## Examples
