@@ -76,6 +76,114 @@ def longest_substring():
             print(Fore.BLUE + "{}: {}".format(key, value) + Style.RESET_ALL)
 
 
+def print_possible_alt():
+
+    possible_p_words = []   # define the list of possible passwords
+
+    if len(chosen_words) != 0:  # if some passwords have been chosen, then we can determine valid and invalid ones
+
+        print("\n" + Fore.BLUE + "[!] Finding (alt) possible word matches" + Style.RESET_ALL)
+
+        for possible_p_word in un_chosen_words: # iterate over each password that hasn't been checked yet
+
+            print(Fore.BLUE + " Trying un-chosen word " + possible_p_word + Style.RESET_ALL)
+
+            # define a set of matching substring sets, which contain a list of matching substrings for each chosen word
+            matching_substring_sets = []
+
+            for word, score in chosen_words:    # iterate over each chosen word, and its number of correct characters
+
+                matching_substring_set = []  # define a list of substrings of possible_p_word that pass "word"
+
+                print(Fore.BLUE + "     Checking against chosen word " + word + " with score " + str(
+                    score) + Style.RESET_ALL)
+
+                if score > 0:
+
+                    for substring_i in itertools.permutations(range(word_length), score):
+
+                        possible_password = True
+
+                        # iterate through each position in the substring, checking if the possible word matches it
+                        for char_i in substring_i:
+                            # print(char_i)
+                            if possible_p_word[char_i] != word[char_i]:
+                                # print(possible_p_word[char_i])
+                                # print(word[char_i])
+                                possible_password = False
+                                break
+
+                        # if the password could be the actual one, based on the
+                        if possible_password:
+                            substring = ""
+                            for possible_p_word_i in range(len(possible_p_word)):
+                                if possible_p_word_i in substring_i:
+                                    substring += possible_p_word[possible_p_word_i]
+                                else:
+                                    substring += "_"
+                            print(Fore.GREEN + "    Matching substring: "+substring)
+                            if substring not in matching_substring_set:
+                                matching_substring_set.append(substring)
+
+                else:
+                    possible_password = True
+                    for char_i in range(len(word)):
+                        if possible_p_word[char_i] == word[char_i]:
+                            possible_password = False
+                            break
+                    if possible_password:
+                        matching_substring_set.append("".join("_" for x in range(word_length)))
+
+                matching_substring_sets.append(matching_substring_set)
+
+            possible_password = True
+
+            for subset in matching_substring_sets:
+                if len(subset) == 0:
+                    possible_password = False
+
+            def recurse(current_string, substring_lists):
+                print(Fore.BLUE + "RECURSE: " + current_string + ", " + str(substring_lists))
+                if len(substring_lists) == 0:
+                    return True
+                else:
+                    for word in substring_lists[0]:
+                        print(Fore.BLUE + "  Attempting to branch into substring;" + word)
+
+                        branching_substring = True
+
+                        # check the substrings don't contradict each other, iterate through each char in the substrings
+                        for char_i in range(len(current_string)):
+
+                            # print(Fore.BLUE + current_string[char_i] + " -> " + word[char_i])
+
+                            if word[char_i] != current_string[char_i] and \
+                                    not (word[char_i] != "_" or current_string != "_"):
+                                branching_substring = False
+                                print(Fore.BLUE + "FAIL")
+                                break
+
+                        if branching_substring:
+                            print(Fore.BLUE + "  Found a fitting substring;" + word)
+                            if len(substring_lists) == 1 or recurse(current_string, substring_lists[1:]):
+                                return True
+
+            # if there are words to check...
+            if possible_password:
+                # print(matching_substring_sets)
+                possible_password = False
+                for initial_substring in matching_substring_sets[0]:
+                    if recurse(initial_substring, matching_substring_sets[1:]):
+                        possible_password = True
+                        break
+
+            if possible_password:
+                print(Fore.GREEN + possible_p_word + " is a valid possible password")
+            else:
+                print(Fore.RED + possible_p_word + " is not a valid possible password")
+
+
+
 # prints out the list of unchosen passwords which could still be the actual password
 def print_possible():
     possible_p_words = []  # define the list of possible passwords
@@ -217,6 +325,7 @@ while True:
 
     rank_words()
     print_possible()
+    print_possible_alt()
     longest_substring()
     score_word()
 
