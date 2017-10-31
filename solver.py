@@ -34,13 +34,15 @@ def rank_words():
 
             grouping = []  # initialise a grouping of words with matching letters
 
-            for p_word in p_words.keys():  # iterate through each word in the list of passwords
+            # iterate through each word in the list of passwords
+            for p_word in p_words.keys():
 
                 # if the password's letter is a match, then add to group
                 if p_word[char_i] == letter and p_words[p_word] < 0:
                     grouping.append(p_word)
 
-            if len(grouping) > 1:   groupings.append(grouping)  # if two or more words match, then save the grouping
+            if len(grouping) > 1:
+                groupings.append(grouping)  # if two or more words match, then save the grouping
 
     r_words = dict()  # declare a dictionary to store the passwords, ranked by score
 
@@ -49,7 +51,8 @@ def rank_words():
         counter = 0
 
         for grouping in groupings:
-            if p_word in grouping: counter += 1
+            if p_word in grouping:
+                counter += 1
 
         # the score for a password is the number of characters it shares with another password
         # save the (password, score) value into the dictionary
@@ -76,173 +79,136 @@ def longest_substring():
             print(Fore.BLUE + "{}: {}".format(key, value) + Style.RESET_ALL)
 
 
-def print_possible_alt():
+# for each un-chosen word, find a set of substrings that satisfy each chosen password, then check they don't contradict
+def print_possible():
 
     possible_p_words = []   # define the list of possible passwords
 
-    if len(chosen_words) != 0:  # if some passwords have been chosen, then we can determine valid and invalid ones
-
-        print("\n" + Fore.BLUE + "[!] Finding (alt) possible word matches" + Style.RESET_ALL)
-
-        for possible_p_word in un_chosen_words: # iterate over each password that hasn't been checked yet
-
-            print(Fore.BLUE + " Trying un-chosen word " + possible_p_word + Style.RESET_ALL)
-
-            # define a set of matching substring sets, which contain a list of matching substrings for each chosen word
-            matching_substring_sets = []
-
-            for word, score in chosen_words:    # iterate over each chosen word, and its number of correct characters
-
-                matching_substring_set = []  # define a list of substrings of possible_p_word that pass "word"
-
-                print(Fore.BLUE + "     Checking against chosen word " + word + " with score " + str(
-                    score) + Style.RESET_ALL)
-
-                if score > 0:
-
-                    for substring_i in itertools.permutations(range(word_length), score):
-
-                        possible_password = True
-
-                        # iterate through each position in the substring, checking if the possible word matches it
-                        for char_i in substring_i:
-                            # print(char_i)
-                            if possible_p_word[char_i] != word[char_i]:
-                                # print(possible_p_word[char_i])
-                                # print(word[char_i])
-                                possible_password = False
-                                break
-
-                        # if the password could be the actual one, based on the
-                        if possible_password:
-                            substring = ""
-                            for possible_p_word_i in range(len(possible_p_word)):
-                                if possible_p_word_i in substring_i:
-                                    substring += possible_p_word[possible_p_word_i]
-                                else:
-                                    substring += "_"
-                            print(Fore.GREEN + "    Matching substring: "+substring)
-                            if substring not in matching_substring_set:
-                                matching_substring_set.append(substring)
-
-                else:
-                    possible_password = True
-                    for char_i in range(len(word)):
-                        if possible_p_word[char_i] == word[char_i]:
-                            possible_password = False
-                            break
-                    if possible_password:
-                        matching_substring_set.append("".join("_" for x in range(word_length)))
-
-                matching_substring_sets.append(matching_substring_set)
-
-            possible_password = True
-
-            for subset in matching_substring_sets:
-                if len(subset) == 0:
-                    possible_password = False
-
-            def recurse(current_string, substring_lists):
-                print(Fore.BLUE + "RECURSE: " + current_string + ", " + str(substring_lists))
-                if len(substring_lists) == 0:
-                    return True
-                else:
-                    for word in substring_lists[0]:
-                        print(Fore.BLUE + "  Attempting to branch into substring;" + word)
-
-                        branching_substring = True
-
-                        # check the substrings don't contradict each other, iterate through each char in the substrings
-                        for char_i in range(len(current_string)):
-
-                            # print(Fore.BLUE + current_string[char_i] + " -> " + word[char_i])
-
-                            if word[char_i] != current_string[char_i] and \
-                                    not (word[char_i] != "_" or current_string != "_"):
-                                branching_substring = False
-                                print(Fore.BLUE + "FAIL")
-                                break
-
-                        if branching_substring:
-                            print(Fore.BLUE + "  Found a fitting substring;" + word)
-                            if len(substring_lists) == 1 or recurse(current_string, substring_lists[1:]):
-                                return True
-
-            # if there are words to check...
-            if possible_password:
-                # print(matching_substring_sets)
-                possible_password = False
-                for initial_substring in matching_substring_sets[0]:
-                    if recurse(initial_substring, matching_substring_sets[1:]):
-                        possible_password = True
-                        break
-
-            if possible_password:
-                print(Fore.GREEN + possible_p_word + " is a valid possible password")
-            else:
-                print(Fore.RED + possible_p_word + " is not a valid possible password")
-
-
-
-# prints out the list of unchosen passwords which could still be the actual password
-def print_possible():
-    possible_p_words = []  # define the list of possible passwords
-
+    # if some passwords have been chosen, then we can determine valid and invalid ones
     if len(chosen_words) != 0:
 
         print("\n" + Fore.BLUE + "[!] Finding possible word matches" + Style.RESET_ALL)
 
-        # iterate through each word that hasn't been selected yet (and so could be the password)        
+        # iterate over each password that hasn't been checked yet
         for possible_p_word in un_chosen_words:
 
-            print(Fore.BLUE + " Trying un-chosen word " + possible_p_word + Style.RESET_ALL)
+            print(Fore.BLUE + " > Trying un-chosen word " + possible_p_word + Style.RESET_ALL)
 
-            # iterate through each word that has been chosen and scored so far
+            # define a set of matching substring sets, which contain a list of matching substrings for each chosen word
+            matching_substring_sets = []
+
+            # iterate over each chosen word, and its number of correct characters
             for word, score in chosen_words:
 
-                score = p_words[word]
+                matching_substring_set = []  # define a list of substrings of possible_p_word that pass "word"
 
-                print(Fore.BLUE + "     Checking against chosen word " + word + " with score " + str(
+                print(Fore.BLUE + "     > Checking against chosen word " + word + " with score " + str(
                     score) + Style.RESET_ALL)
 
-                # if the chosen word has a score greater than zero, then it must contain score number matching chars
+                # matching password choices which a non negative score, and so contain a valid substring
                 if score > 0:
 
-                    # iterate over all possible sub-strings in the chosen password, which could be the valid chars
+                    # iterate through all possible char positions which could be the valid substring
                     for substring_i in itertools.permutations(range(word_length), score):
-                        possible_password = True
 
-                        # print("         Trying permutation " + str(substring_i) + " on " + word + " and " +
-                        # possible_p_word)
+                        possible_password = True    # define a boolean value, to specify if it is a valid password
 
                         # iterate through each position in the substring, checking if the possible word matches it
                         for char_i in substring_i:
-                            # print(char_i)
+
+                            # if the characters in that position contradict, then it isn't a valid substring
                             if possible_p_word[char_i] != word[char_i]:
-                                # print(possible_p_word[char_i])
-                                # print(word[char_i])
                                 possible_password = False
                                 break
 
-                        # if the password could be the actual one, based on the
+                        # if we have found a satisfying substring, then we need to get a string value for it
                         if possible_password:
-                            # print("permutation matched")
-                            break
 
-                # if the 
+                            substring = ""  # define an empty string which will hold the substring
+
+                            # iterate through each index in the possible password string
+                            for possible_p_word_i in range(len(possible_p_word)):
+
+                                # if this index is in the substring, then add the char in that index
+                                if possible_p_word_i in substring_i:
+                                    substring += possible_p_word[possible_p_word_i]
+
+                                # otherwise, we don't care what character it is so just add an underscore
+                                else:
+                                    substring += "_"
+
+                            print(Fore.GREEN + "    Matching substring: "+substring)
+
+                            # if the substring isn't the same as another substring we found, then add it to our list
+                            if substring not in matching_substring_set:
+                                matching_substring_set.append(substring)
+
+                #  otherwise, the password's score is 0 and so it should not match a possible password in any position
                 else:
+                    possible_password = True    # define a boolean value, to specify if it is a valid password
+
+                    # iterate through each index in the word
                     for char_i in range(len(word)):
+
+                        # if the characters match in this position, then we know it can't be a valid password
                         if possible_p_word[char_i] == word[char_i]:
-                            possible_password = False
+                            possible_password = False   # update the boolean flag
                             break
+
+                    # this is a valid password as it doesn't match the 0-scored password in any position
+                    if possible_password:
+                        matching_substring_set.append("".join("_" for x in range(word_length)))
+
+                # add the list of passing substrings for this chosen and unchosen password combination
+                matching_substring_sets.append(matching_substring_set)
+
+            # now, we have a list of passing substrings for each chosen (and scored) password
+            # so we must now find a set of substrings, one from each list of passing substrings, which don't contradict
+            # therefore, the possible password satisfies all the scored passwords and so COULD be a password
+
+            possible_password = True    # define a boolean value, to specify if it is a valid password
+
+            # iterate through each set of passing substrings for a given password
+            for subset in matching_substring_sets:
+
+                # if there are no passing substrings for a given password, then this password isn't possible
+                if len(subset) == 0:
+                    possible_password = False
+
+            # if there are words to check...
             if possible_password:
-                possible_p_words.append(possible_p_word)
+                for initial_substring in matching_substring_sets[0]:
+                    if p_word_recurse(initial_substring, matching_substring_sets[1:]):
+                        possible_p_words.append(possible_p_word)
+                        break
 
-        print(Fore.GREEN + "[!] Possible passwords: " + ", ".join(possible_p_words) + Style.RESET_ALL)
+    print(Fore.GREEN + ", ".join(possible_p_words) + " are possible passwords")
 
+
+def p_word_recurse(current_string, substring_lists):
+    if len(substring_lists) == 0:
+        return True
+    elif len(substring_lists[0]) == 0:
+        return False
     else:
-        print("\n" + Fore.BLUE + "[!] No password attempts have been made yet, so any could be the password!" +
-              Style.RESET_ALL)
+        for word in substring_lists[0]:
+            branching_substring = True
+
+            # check the substrings don't contradict each other, iterate through each char in the substrings
+            for char_i in range(len(current_string)):
+
+                # print(Fore.BLUE + current_string[char_i] + " -> " + word[char_i])
+
+                if word[char_i] != current_string[char_i] and \
+                        not (word[char_i] != "_" or current_string != "_"):
+                    branching_substring = False
+                    break
+
+            if branching_substring:
+                if len(substring_lists) == 1:
+                    return True
+                elif p_word_recurse(current_string, substring_lists[1:]):
+                    return True
 
 
 # updates the score for each word as input by the user
@@ -274,59 +240,64 @@ def score_word():
 
     if word_score == word_length:
         print(Fore.GREEN + "Congratulations, you've got the password." + Style.RESET_ALL)
-        sys.exit(0)
+        return False
 
     p_words[word] = word_score
 
+    return True
 
-print("\n--- Fallout Terminal Solver --- ")
 
-print("\n" + Fore.BLUE + "[!] Reading in passwords..." + Style.RESET_ALL)
+if __name__ == "__main__":
 
-# if no command line arguments are given, then keep prompting for password input
-if len(sys.argv) == 1:
-    print("Taking passwords as user input")
-    p_word_in = " "
-    while p_word_in != "":
-        p_word_in = str(input("> Password; ")).strip()
-        p_words[p_word_in] = -1
+    print("\n--- Fallout Terminal Solver --- ")
 
-elif len(sys.argv) == 2:
-    print(Fore.RED + "1 or 3 arguments only" + Style.RESET_ALL)
-    sys.exit(0)
+    print("\n" + Fore.BLUE + "[!] Reading in passwords..." + Style.RESET_ALL)
 
-# if a single command line argument, of a text file is given, then use that
-elif len(sys.argv) == 3 and sys.argv[1].endswith(".txt"):
-    print(Fore.BLUE + "Reading passwords from a text file" + Style.RESET_ALL)
+    # if no command line arguments are given, then keep prompting for password input
+    if len(sys.argv) == 1:
+        print("Taking passwords as user input")
+        p_word_in = " "
+        while p_word_in != "":
+            p_word_in = str(input("> Password; ")).strip()
+            p_words[p_word_in] = -1
 
-    with open('p_words.txt', 'r') as file:
-        for x in range(int(sys.argv[2])):
-            file.readline()
-        for word in file.readline().split(" "):
-            p_words[str(word).replace("\n", "")] = - 1
-        file.close()
+    elif len(sys.argv) == 2:
+        print(Fore.RED + "1 or 3 arguments only" + Style.RESET_ALL)
+        sys.exit(0)
 
-# otherwise, use the command line arguments as the passwords
-else:
-    print(Fore.BLUE + "Taking passwords from command line arguments" + Style.RESET_ALL)
-    for p_word in sys.argv[1:]:
-        p_words[p_word] = -1
+    # if a single command line argument, of a text file is given, then use that
+    elif len(sys.argv) == 3 and sys.argv[1].endswith(".txt"):
+        print(Fore.BLUE + "Reading passwords from a text file" + Style.RESET_ALL)
 
-print(Fore.BLUE + "[!] Passwords ; " + str(p_words.keys()) + Style.RESET_ALL)
+        with open('p_words.txt', 'r') as file:
+            for x in range(int(sys.argv[2])):
+                file.readline()
+            for word in file.readline().split(" "):
+                p_words[str(word).replace("\n", "")] = - 1
+            file.close()
 
-word_length = len(list(p_words.keys())[0])
+    # otherwise, use the command line arguments as the passwords
+    else:
+        print(Fore.BLUE + "Taking passwords from command line arguments" + Style.RESET_ALL)
+        for p_word in sys.argv[1:]:
+            p_words[p_word] = -1
 
-while True:
-    un_chosen_words = [p for p in p_words.keys() if p_words[p] < 0]
-    chosen_words = [(p, p_words[p]) for p in p_words if p_words[p] >= 0]
-    print("\n" + Fore.GREEN + "[!] Possible Words: {}".format(", ".join(un_chosen_words)) + Style.RESET_ALL)
-    print(Fore.RED + "[!] Chosen Words: {}".format(
-        ", ".join([word + " " + str(score) for word, score in chosen_words])) + Style.RESET_ALL)
+    print(Fore.BLUE + "[!] Passwords ; " + str(p_words.keys()) + Style.RESET_ALL)
 
-    rank_words()
-    print_possible()
-    print_possible_alt()
-    longest_substring()
-    score_word()
+    word_length = len(list(p_words.keys())[0])
 
-deinit()
+    cant_stop_wont_stop_flag = True
+
+    while cant_stop_wont_stop_flag:
+        un_chosen_words = [p for p in p_words.keys() if p_words[p] < 0]
+        chosen_words = [(p, p_words[p]) for p in p_words if p_words[p] >= 0]
+        print("\n" + Fore.GREEN + "[!] Possible Words: {}".format(", ".join(un_chosen_words)) + Style.RESET_ALL)
+        print(Fore.RED + "[!] Chosen Words: {}".format(
+            ", ".join([word + " " + str(score) for word, score in chosen_words])) + Style.RESET_ALL)
+
+        rank_words()
+        print_possible()
+        # longest_substring()
+        cant_stop_wont_stop_flag = score_word()
+
+    deinit()
