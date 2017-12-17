@@ -256,10 +256,12 @@ if __name__ == "__main__":
     # if no command line arguments are given, then keep prompting for password input
     if len(sys.argv) == 1:
         print("Taking passwords as user input")
-        p_word_in = " "
+
+        p_word_in = str(input("> Password; ")).strip()
+
         while p_word_in != "":
-            p_word_in = str(input("> Password; ")).strip()
             p_words[p_word_in] = -1
+            p_word_in = str(input("> Password; ")).strip()
 
     elif len(sys.argv) == 2:
         print(Fore.RED + "1 or 3 arguments only" + Style.RESET_ALL)
@@ -297,7 +299,6 @@ if __name__ == "__main__":
 
         rank_words()
         print_possible()
-        # longest_substring()
         cant_stop_wont_stop_flag = score_word()
 
     deinit()
