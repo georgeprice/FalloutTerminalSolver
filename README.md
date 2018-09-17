@@ -12,17 +12,17 @@ This python script helps keep track of what words the password could be (based o
 ## Using the script
 If you want to be prompted for the words and type them in individually...
 ``` python
-python solver.py
+python cli.py
 ```
 
 If you've got the words present on the terminal handy...
 ``` python
-python solver.py word_a word_b word_c ...
+python cli.py word_a word_b word_c ...
 ```
 
 If you've got a .txt file of the words...
 ``` python
-python solver.py p_words.txt line_number_with_words
+python cli.py p_words.txt line_number_with_words
 ```
 
 ## Examples
