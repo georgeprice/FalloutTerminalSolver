@@ -33,3 +33,8 @@ Terminal Difficulty | Link | Words Used
 Master | https://www.youtube.com/watch?v=Iux-pjzKjYs | processing recreating procession activating complexion descending intentions inevitably frequently equivalent aggressive specialize leaderless worthiness
 ? | https://www.youtube.com/watch?v=Sa4RUpXgzT4 | shot hurt sell give sure gear sent fire glow week ones sick
 ? | https://www.youtube.com/watch?v=IFXxm6AOa0U&t=49s | guns lets golf roof juke uses move doom busy late born
+
+## How it works
+An fully connected undirected graph is created; nodes represent possible passwords, the edges between them contain the count of matching characters. When a password is selected, the number of matching characters with the "true" password is returned. Therefore, all password nodes connected by an edge with a different value cannot be correct; these nodes and edges are removed. 
+
+On each iteration, the nodes and edges of the tree are pruned further.
